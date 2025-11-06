@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: MIT
+define KFEATURE_DESCRIPTION "Sulka configuration for Raspberry Pi 4"
+define KFEATURE_COMPATIBILITY all
+
+kconf non-hardware sulka-raspberrypi.cfg
+

@@ -1,0 +1,3 @@
+define KMACHINE raspberrypi4-64
+define KTYPE standard
+define KARCH arm64
