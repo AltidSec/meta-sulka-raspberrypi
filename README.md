@@ -11,7 +11,7 @@ Bootloader and kernel metadata are board specific, so most of the work of portin
 
 ### Kernel
 
-`recipes-kernel/linux/linux-raspberrypi_6.18.bbappend` inherits the `sulka-kernel-hardening` class from [meta-sulka-kernel](https://codeberg.org/AltidSec/meta-sulka-kernel), which is all that is needed to bring the Sulka kernel hardening onto a different kernel recipe.
+`recipes-kernel/linux/linux-raspberrypi_6.18.bbappend` inherits the `sulka-kernel-hardening` class from [meta-sulka-kernel](https://codeberg.org/AltidSec/meta-sulka-kernel), which enables the hardening features provided by Sulka.
 
 On top of that it adds its own kernel metadata under `recipes-kernel/linux/files/sulka-raspberrypi-kmeta/`, describing the machine to the kernel tooling and carrying a `sulka-raspberrypi` feature that reconciles the Sulka hardening with the board:
 
