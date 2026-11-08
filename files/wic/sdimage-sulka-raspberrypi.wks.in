@@ -1,0 +1,9 @@
+# short-description: Create Raspberry Pi Sulka SD card image
+# long-description: Creates a partitioned SD card image for use with
+# Raspberry Pi, using Sulka. Boot files are located in the first vfat
+# partition. Based on the wks file from the meta-raspberrypi, with
+# modified root file system definition that allows dm-verity to work
+
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4096 --size 100
+#part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4096
+part / --source rawcopy --sourceparams="file=${IMGDEPLOYDIR}/${IMAGE_LINK_NAME}.${SULKA_ROOTFS_IMAGE_TYPE}" --ondisk mmcblk0 --align 4096
