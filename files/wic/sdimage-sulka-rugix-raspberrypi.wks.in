@@ -1,0 +1,15 @@
+# short-description: Create Raspberry Pi Sulka SD card image for Rugix
+# long-description: Creates a partitioned SD card image for Rugix A/B updates
+# with U-Boot, using Sulka. Based on the wks file from meta-rugix-rpi-uboot,
+# with the kernel moved from the system partition into its own boot partition,
+# so that dm-verity can protect the system partition. The first partition is
+# the Rugix config partition with the firmware and U-Boot, the second and the
+# third are the A/B boot slots, and the fourth is the system slot A. Rugix
+# bootstrapping adds the system slot B and the data partition on first boot.
+
+part --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --align 4096 --fixed-size 256M --part-type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+part --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot-a --align 4096 --fixed-size 128M --part-type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+part --source empty --ondisk mmcblk0 --align 4096 --fixed-size 128M --part-type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+part / --source rawcopy --sourceparams="file=${IMGDEPLOYDIR}/${IMAGE_LINK_NAME}.${SULKA_ROOTFS_IMAGE_TYPE}" --ondisk mmcblk0 --align 4096 --part-type 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+
+bootloader --ptable gpt

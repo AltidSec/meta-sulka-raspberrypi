@@ -29,6 +29,22 @@ Since that hardening restricts the U-Boot console to an allowlist of commands, t
 
 `dynamic-layers/meta-rugix/` activates only when `meta-rugix-core` is part of the build. It adjusts the Rugix system configuration in two ways: it disables the Rugix overlay, because the overlayfs it relies on does not work well with SELinux, and it installs the signature root certificate when one has been configured.
 
+`dynamic-layers/meta-rugix-rpi-uboot/` activates only when `meta-rugix-rpi-uboot` is part of the build. It replaces the partition layout of that layer with `files/wic/sdimage-sulka-rugix-raspberrypi.wks.in`, which moves the kernel out of the system partition into A/B boot partitions of its own:
+
+| Partition | Content |
+|---|---|
+| 1 | Rugix config partition with the firmware, U-Boot and its environment |
+| 2, 3 | Boot slots A and B, holding the kernel with the bundled initramfs |
+| 4, 5 | System slots A and B, holding the root file system |
+| 6 | Rugix data partition |
+
+The image contains the partitions 1 to 4, and Rugix creates the rest on first boot.
+The initramfs carries the dm-verity root hash of the root file system, so the kernel cannot be stored in the system partition that dm-verity protects.
+Each boot slot pairs with the system slot of the same boot group, and the update bundle carries both, so a kernel is always booted with the root file system it verifies.
+The layer adapts the U-Boot boot script and the Rugix system and bootstrapping configurations to this layout.
+The root file system is a dm-verity device that Rugix cannot match to a system slot, so the boot script passes the booted boot group to Rugix in `rugix.boot_group` on the kernel command line.
+The firmware update fragment of the reference project selects the layout with `WKS_FILE`, places the kernel in boot slot A with `IMAGE_BOOT_FILES_label-boot-a` and adds both slots to the update bundle with `RUGIX_SLOTS`.
+
 See the [firmware update guide](https://altidsec.com/sulka/documentation/firmware-update.html) for how to run the update example and how to point the build at your certificate.
 
 ## Layer Information

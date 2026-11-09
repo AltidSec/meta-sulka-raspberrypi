@@ -1,0 +1,50 @@
+# Based on the boot script of meta-rugix-rpi-uboot, with the kernel loaded from
+# the boot slot of the boot group instead of the system slot:
+#
+# Boot group a: boot slot mmcblk0p2, system slot mmcblk0p4
+# Boot group b: boot slot mmcblk0p3, system slot mmcblk0p5
+#
+# Rugix sets rugix_bootpart to 2 for the boot group a and to 3 for the boot
+# group b. The root file system is a dm-verity device, which Rugix cannot match
+# to a system slot, so pass the booted group in rugix.boot_group.
+
+fdt addr ${fdt_addr} && fdt get value bootargs /chosen bootargs
+
+test -n "${rugix_boot_spare}" || setenv rugix_boot_spare 0
+test -n "${rugix_bootpart}" || setenv rugix_bootpart 2
+
+echo "Boot Spare: " ${rugix_boot_spare}
+echo "Bootpart: " ${rugix_bootpart}
+
+if test "${rugix_boot_spare}" = "1"; then
+  if test "${rugix_bootpart}" = "3"; then
+    setenv rugix_boot_dev "mmc 0:2"
+    setenv rugix_root "/dev/mmcblk0p4"
+    setenv rugix_group a
+  else
+    setenv rugix_boot_dev "mmc 0:3"
+    setenv rugix_root "/dev/mmcblk0p5"
+    setenv rugix_group b
+  fi
+  setenv rugix_boot_spare 0
+  saveenv
+else
+  if test "${rugix_bootpart}" = "3"; then
+    setenv rugix_boot_dev "mmc 0:3"
+    setenv rugix_root "/dev/mmcblk0p5"
+    setenv rugix_group b
+  else
+    setenv rugix_boot_dev "mmc 0:2"
+    setenv rugix_root "/dev/mmcblk0p4"
+    setenv rugix_group a
+  fi
+fi
+
+echo "Bootdev: " ${rugix_boot_dev}
+
+# Initialize the UBoot environment on first boot.
+if test ! -e mmc 0:1 uboot.env; then saveenv; fi;
+
+setenv bootargs "${bootargs} root=${rugix_root} rugix.boot_group=${rugix_group} init=/usr/bin/rugix-ctrl ro"
+load ${rugix_boot_dev} ${kernel_addr_r} @@KERNEL_IMAGETYPE@@
+@@KERNEL_BOOTCMD@@ ${kernel_addr_r} - ${fdt_addr}
