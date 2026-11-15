@@ -41,8 +41,8 @@ Since that hardening restricts the U-Boot console to an allowlist of commands, t
 The image contains the partitions 1 to 4, and Rugix creates the rest on first boot.
 The initramfs carries the dm-verity root hash of the root file system, so the kernel cannot be stored in the system partition that dm-verity protects.
 Each boot slot pairs with the system slot of the same boot group, and the update bundle carries both, so a kernel is always booted with the root file system it verifies.
-The layer adapts the U-Boot boot script and the Rugix system and bootstrapping configurations to this layout.
-The root file system is a dm-verity device that Rugix cannot match to a system slot, so the boot script passes the booted boot group to Rugix in `rugix.boot_group` on the kernel command line.
+The layer adapts the U-Boot boot script, with a patch on the one from meta-rugix, and the Rugix system and bootstrapping configurations to this layout.
+The root file system is a dm-verity device, which Rugix versions before 1.3.0 cannot match to a system slot, so the boot script passes the booted boot group to Rugix in `rugix.boot_group` on the kernel command line.
 The firmware update fragment of the reference project selects the layout with `WKS_FILE`, places the kernel in boot slot A with `IMAGE_BOOT_FILES_label-boot-a` and adds both slots to the update bundle with `RUGIX_SLOTS`.
 
 See the [firmware update guide](https://altidsec.com/sulka/documentation/firmware-update.html) for how to run the update example and how to point the build at your certificate.
